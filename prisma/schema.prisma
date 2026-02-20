@@ -17,6 +17,7 @@ model User {
   environments     Environment[]      @relation("UserEnvironments")
   secrets          Secret[]
   globalHeaders    GlobalHeader[]
+  mockEndpoints    MockEndpoint[]
 }
 
 model CollectionItem {
@@ -107,4 +108,31 @@ model GlobalHeader {
   
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model MockEndpoint {
+  id          String         @id @default(uuid())
+  path        String         // Path to match, e.g., "/api/v1/users"
+  method      String         // GET, POST, etc.
+  description String?
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isPublic    Boolean        @default(false)
+  rateLimit   Int            @default(100) // requests per minute
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  responses   MockResponse[]
+
+  @@unique([userId, path, method])
+}
+
+model MockResponse {
+  id             String       @id @default(uuid())
+  statusCode     Int          // 200, 404, etc.
+  body           String?      // Response body
+  headers        Json?        // Array of { key, value, isEnabled }
+  mockEndpointId String
+  mockEndpoint   MockEndpoint @relation(fields: [mockEndpointId], references: [id], onDelete: Cascade)
+
+  @@unique([mockEndpointId, statusCode])
 }

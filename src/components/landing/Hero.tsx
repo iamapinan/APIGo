@@ -56,7 +56,7 @@ export default function Hero({ onLoginClick }: HeroProps) {
           onClick={onLoginClick}
           className="group relative px-8 py-4 bg-white text-zinc-950 font-semibold rounded-xl hover:scale-105 transition-all duration-300 flex items-center gap-2 shadow-[0_0_40px_rgba(255,255,255,0.15)]"
         >
-          Start for Free with Google
+          Get Started for Free
           <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
         </button>
         <a

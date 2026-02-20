@@ -13,8 +13,10 @@ import {
   CollectionItem,
   HistoryItem,
 } from "@/utils/postman-parser";
-import { History, GripVertical, GripHorizontal } from "lucide-react";
+import { MockEndpoint } from "@/types/mockup";
+import { History, GripVertical, GripHorizontal, Menu } from "lucide-react";
 import { Panel, Group, Separator } from "react-resizable-panels";
+import { MockupEditor } from "@/components/mockup/MockupEditor";
 
 // Environment Imports
 import {
@@ -56,7 +58,11 @@ export default function Home() {
   // State
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [collections, setCollections] = useState<CollectionItem[]>([]);
+  const [mockups, setMockups] = useState<MockEndpoint[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [activeTab, setActiveTab] = useState<
+    "history" | "collections" | "mockups"
+  >("history");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Environment State
@@ -66,6 +72,10 @@ export default function Home() {
   );
   const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
+
+  // Mockup State
+  const [isMockupEditorOpen, setIsMockupEditorOpen] = useState(false);
+  const [editingMockup, setEditingMockup] = useState<MockEndpoint | null>(null);
 
   const { isLoading, response, error, sendRequest } = useRequest();
   const { user, loading: authLoading, signOut } = useAuth();
@@ -114,6 +124,15 @@ export default function Home() {
       })
       .catch((e: Error) => {
         console.error("Failed to fetch environments from database:", e);
+      });
+    // Load Mockups from API
+    api.mocks
+      .getAll()
+      .then((data: MockEndpoint[]) => {
+        setMockups(data);
+      })
+      .catch((e: Error) => {
+        console.error("Failed to fetch mockups from database:", e);
       });
   }, [user]);
 
@@ -503,6 +522,51 @@ export default function Home() {
     }
   };
 
+  // Mockup Handlers
+  const handleSaveMockup = async (mockData: Partial<MockEndpoint>) => {
+    try {
+      if (mockData.id) {
+        // Update
+        const updated = await api.mocks.update(mockData.id, mockData);
+        setMockups((prev) =>
+          prev.map((m) => (m.id === updated.id ? updated : m)),
+        );
+      } else {
+        // Create
+        const created = await api.mocks.create(mockData);
+        setMockups((prev) => [created, ...prev]);
+      }
+      setIsMockupEditorOpen(false);
+      setEditingMockup(null);
+    } catch (e) {
+      console.error("Failed to save mockup:", e);
+      alert("Failed to save mockup. Please check the path and method.");
+    }
+  };
+
+  const handleDeleteMockup = async (id: string) => {
+    if (confirm("Are you sure you want to delete this mockup?")) {
+      try {
+        await api.mocks.delete(id);
+        setMockups((prev) => prev.filter((m) => m.id !== id));
+      } catch (e) {
+        console.error("Failed to delete mockup:", e);
+      }
+    }
+  };
+
+  const loadMockupItem = (item: MockEndpoint) => {
+    setMethod(item.method);
+    setUrl(`${window.location.origin}/api/mock${item.path}`);
+    // Optionally load default response headers/body if desired
+    const defaultResponse =
+      item.responses.find((r) => r.statusCode === 200) || item.responses[0];
+    if (defaultResponse) {
+      setHeaders((defaultResponse.headers as any[]) || []);
+      setBody(defaultResponse.body || "");
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="h-screen w-full flex items-center justify-center bg-zinc-950">
@@ -522,46 +586,49 @@ export default function Home() {
 
   return (
     <main className="flex h-screen w-full bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 overflow-hidden">
-      <Group orientation="horizontal">
+      <Group orientation="horizontal" className="w-full h-full">
         {/* Sidebar */}
         {isSidebarOpen && (
-          <>
-            <Panel
-              defaultSize={30}
-              minSize={10}
-              maxSize={50}
-              className="h-full flex flex-col bg-zinc-100 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800"
-            >
-              {/* Hidden Input for Import */}
-              <input
-                type="file"
-                ref={fileInputRef}
-                className="hidden"
-                accept=".json"
-                onChange={handleFileUpload}
-              />
-              <Sidebar
-                history={history}
-                collections={collections}
-                onSelectHistory={loadHistoryItem}
-                onSelectCollection={loadCollectionItem}
-                onImport={() => fileInputRef.current?.click()}
-                onOpenSettings={() => setIsSettingsOpen(true)}
-                onDeleteHistory={handleDeleteHistory}
-                onClearHistory={handleClearHistory}
-                onCreateCollectionItem={handleCreateCollectionItem}
-                onEditCollectionItem={handleEditCollectionItem}
-                onDeleteCollectionItem={handleDeleteCollectionItem}
-              />
-            </Panel>
-            <Separator className="w-1 group bg-transparent hover:bg-indigo-500/10 transition-colors relative z-10 flex items-center justify-center cursor-col-resize">
-              <div className="w-px h-full bg-zinc-200 dark:bg-zinc-800 group-hover:bg-indigo-500 transition-colors" />
-            </Separator>
-          </>
+          <div className="w-[15%] h-full flex flex-col bg-zinc-100 dark:bg-zinc-900">
+            {/* Hidden Input for Import */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept=".json"
+              onChange={handleFileUpload}
+            />
+            <Sidebar
+              history={history}
+              collections={collections}
+              mockups={mockups}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              onSelectHistory={loadHistoryItem}
+              onSelectCollection={loadCollectionItem}
+              onSelectMockup={loadMockupItem}
+              onImport={() => fileInputRef.current?.click()}
+              onOpenSettings={() => setIsSettingsOpen(true)}
+              onDeleteHistory={handleDeleteHistory}
+              onClearHistory={handleClearHistory}
+              onCreateCollectionItem={handleCreateCollectionItem}
+              onEditCollectionItem={handleEditCollectionItem}
+              onDeleteCollectionItem={handleDeleteCollectionItem}
+              onCreateMockup={() => {
+                setEditingMockup(null);
+                setIsMockupEditorOpen(true);
+              }}
+              onEditMockup={(item) => {
+                setEditingMockup(item);
+                setIsMockupEditorOpen(true);
+              }}
+              onDeleteMockup={handleDeleteMockup}
+            />
+          </div>
         )}
 
         {/* Main Content */}
-        <Panel defaultSize={70}>
+        <Panel defaultSize={85}>
           <div className="flex-1 h-full flex flex-col min-w-0">
             {/* Top Navigation / Header */}
             <header className="h-12 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 flex items-center justify-between px-4">
@@ -570,7 +637,7 @@ export default function Home() {
                   onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                   className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
                 >
-                  <History className="h-4 w-4" />
+                  <Menu className="h-4 w-4" />
                 </button>
                 <div className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
                   API Go!
@@ -627,7 +694,7 @@ export default function Home() {
 
             {/* Content Area - Split Vertical */}
             <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-              <Group orientation="horizontal">
+              <Group orientation="horizontal" className="w-full h-full">
                 {/* Sidebar (Optional) - Handled separately if isSidebarOpen but PanelGroup needs children */}
                 {/* Note: In this layout, Sidebar is outside Main Content div. 
                 Wait, looking at line 523, the main is flex h-screen w-full.
@@ -704,6 +771,15 @@ export default function Home() {
         onClose={() => setIsSettingsOpen(false)}
         collections={collections}
         onImportCollections={handleImportCollections}
+      />
+      <MockupEditor
+        isOpen={isMockupEditorOpen}
+        onClose={() => {
+          setIsMockupEditorOpen(false);
+          setEditingMockup(null);
+        }}
+        onSave={handleSaveMockup}
+        initialData={editingMockup}
       />
     </main>
   );

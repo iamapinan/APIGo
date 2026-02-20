@@ -13,20 +13,29 @@ export async function GET(req: Request) {
   try {
     await ensureUser(user.uid, user.email || "");
 
-    // Fetch all collections owned by user, OR shared with user
-    // To build a tree, we fetch everything and assemble it on the client/server
-    const collections = await prisma.collectionItem.findMany({
-      where: {
-        OR: [
-          { userId: user.uid },
-          { shares: { some: { userEmail: user.email || "" } } },
-        ],
-      },
-      include: {
-        shares: true,
-      },
-      orderBy: { createdAt: "asc" },
-    });
+    // Fetch all collections owned by user, OR shared with user (including descendants)
+    // Using raw SQL for recursive CTE because Prisma doesn't support it natively for hierarchical structures in this way
+    const collections = await prisma.$queryRaw<DbItem[]>`
+      WITH RECURSIVE shared_hierarchy AS (
+        -- Root items shared directly with the user
+        SELECT ci.* FROM "CollectionItem" ci
+        JOIN "CollectionShare" cs ON ci.id = cs."collectionId"
+        WHERE cs."userEmail" = ${user.email || ""}
+        
+        UNION ALL
+        
+        -- Descendants of shared items
+        SELECT ci.* FROM "CollectionItem" ci
+        JOIN shared_hierarchy sh ON ci."parentId" = sh.id
+      )
+      -- Combine user's own items and shared items (avoiding duplicates)
+      SELECT DISTINCT * FROM (
+        SELECT * FROM "CollectionItem" WHERE "userId" = ${user.uid}
+        UNION ALL
+        SELECT * FROM shared_hierarchy
+      ) AS combined
+      ORDER BY "createdAt" ASC
+    `;
 
     // We only want the root items, Prisma handles flat lists easier.
     // We'll return flat list and let frontend build the tree, OR build it here.

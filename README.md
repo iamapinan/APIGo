@@ -47,6 +47,7 @@ No desktop install. No expensive subscriptions. Just sign in with Google and sta
 | **Request History** | Every sent request is logged. Delete individual entries or clear all history. |
 | **Body Types** | Supports `none`, `raw` (JSON), `x-www-form-urlencoded`, and `form-data` body types. |
 | **Response Viewer** | Colorized JSON syntax highlighting, response headers view, status badge, and timing info. |
+| **Mockup API** | Create custom mock endpoints with path/method matching, dynamic responses, and public access with rate limiting. |
 | **Google Sign-In** | One-click login with Firebase Google Auth. No passwords to manage. |
 | **Open Source** | MIT license. Self-host it, fork it, or contribute. |
 
@@ -126,7 +127,9 @@ User
   ├── Environment
   │     └── EnvironmentShare (shared by email)
   ├── Secret
-  └── GlobalHeader
+  ├── GlobalHeader
+  ├── MockEndpoint (path, method, isPublic, rateLimit)
+  │     └── MockResponse (statusCode, body, headers)
 ```
 
 ---
@@ -145,6 +148,8 @@ User
 | POST | `/api/environments/share` | Share environment with a user |
 | GET/PUT | `/api/secrets` | Get / replace all secrets |
 | GET/PUT | `/api/global-headers` | Get / replace all global headers |
+| GET/POST | `/api/mocks` | List / create / update mock endpoints |
+| GET/POST/PUT/DELETE/PATCH | `/api/mock/[...path]` | Public/Private Mock Resolver |
 
 All routes require a Firebase ID token in the `Authorization: Bearer <token>` header.
 

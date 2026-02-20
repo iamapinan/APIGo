@@ -17,6 +17,12 @@
    - แสดงหน้า Main Application (ประกอบด้วย Sidebar, Request Composer, Response Viewer)
    - หน้า Header จะมีรูปโปรไฟล์และปุ่ม Log out บริเวณมุมบนขวา
    - หากคลิก Log out ระบบจะล้างค่า Session แล้วกลับมาหน้า Landing Page
+5. **การแชร์ Collection (Sharing Flow):**
+   - ผู้ใช้ (Owner) สามารถแชร์ Folder หรือ Collection ให้ผู้อื่นผ่าน Email
+   - ระบบบันทึกการแชร์ในตาราง `CollectionShare`
+   - ผู้ที่ได้รับแชร์ (Sharee) จะเห็น Collection นั้นใน Sidebar ของตนเอง
+   - ระบบใช้ `Recursive CTE` ในการดึงข้อมูลทั้่ง Folder และ Requests ทั้งหมดภายใต้รายการที่ถูกแชร์
+6. **Mockup API**: New feature using `MockEndpoint` and `MockResponse` models. Resolver at `/api/mock/[...path]` handles requests based on user ownership and path/method matching.
 
 ## สถาปัตยกรรมทาง UI (UI Architecture)
 - **src/components/landing/**: จะโฟกัสแค่รหัสหน้า Landing ประกอบย่อยเป็น `<Hero />`, `<Features />` พร้อม Mockup ข้อมูล, `<Footer />`

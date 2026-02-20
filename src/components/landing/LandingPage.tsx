@@ -1,15 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import Hero from "@/components/landing/Hero";
 import Features from "@/components/landing/Features";
 import Footer from "@/components/landing/Footer";
-import { useAuth } from "@/context/AuthContext";
+import AuthModal from "@/components/landing/AuthModal";
 
 export default function LandingPage() {
-  const { signInWithGoogle } = useAuth();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative">
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
+
       {/* Background Deep Glow FX */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-0 -left-1/4 w-1/2 h-1/2 bg-indigo-500/10 blur-[130px] rounded-full animate-pulse" />
@@ -19,7 +25,7 @@ export default function LandingPage() {
 
       <div className="relative z-10 flex flex-col min-h-screen">
         <div className="flex-1">
-          <Hero onLoginClick={signInWithGoogle} />
+          <Hero onLoginClick={() => setIsAuthModalOpen(true)} />
           <Features />
         </div>
         <Footer />

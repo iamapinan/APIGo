@@ -1,6 +1,7 @@
 import { auth } from "./firebase";
 import { CollectionItem, HistoryItem } from "./postman-parser";
 import { Environment } from "./variable-substitution";
+import { MockEndpoint } from "@/types/mockup";
 
 // Smaller types used in API calls
 export interface ApiSecret {
@@ -168,6 +169,29 @@ export const api = {
       fetchWithAuth("/api/global-headers", {
         method: "PUT",
         body: JSON.stringify(headers),
+      }),
+  },
+  mocks: {
+    getAll: (): Promise<MockEndpoint[]> => fetchWithAuth("/api/mocks"),
+
+    create: (mock: Partial<MockEndpoint>): Promise<MockEndpoint> =>
+      fetchWithAuth("/api/mocks", {
+        method: "POST",
+        body: JSON.stringify(mock),
+      }),
+
+    update: (
+      id: string,
+      updates: Partial<MockEndpoint>,
+    ): Promise<MockEndpoint> =>
+      fetchWithAuth(`/api/mocks`, {
+        method: "PUT",
+        body: JSON.stringify({ id, ...updates }),
+      }),
+
+    delete: (id: string): Promise<{ success: boolean }> =>
+      fetchWithAuth(`/api/mocks?id=${id}`, {
+        method: "DELETE",
       }),
   },
 };

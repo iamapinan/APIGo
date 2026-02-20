@@ -61,10 +61,18 @@ const features = [
     bgIcon: "bg-purple-400/10 border-purple-400/20",
   },
   {
+    title: "Mockup API",
+    description:
+      "Create custom mock endpoints instantly. Support for path matching, dynamic status codes, and public access with rate limiting.",
+    icon: Zap,
+    color: "text-amber-400",
+    bgIcon: "bg-amber-400/10 border-amber-400/20",
+  },
+  {
     title: "Lightweight & Fast",
     description:
       "Built on Next.js 15 with server-side authentication. Near-instant response times with an optimistic UI that never blocks your workflow.",
-    icon: Zap,
+    icon: Globe,
     color: "text-yellow-400",
     bgIcon: "bg-yellow-400/10 border-yellow-400/20",
   },
