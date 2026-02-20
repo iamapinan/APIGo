@@ -6,7 +6,9 @@ import {
   useState,
   useEffect,
   ReactNode,
+  useCallback,
 } from "react";
+import { api } from "@/utils/api";
 
 export interface Secret {
   key: string;
@@ -30,24 +32,21 @@ interface SecretsContextType {
 const SecretsContext = createContext<SecretsContextType | undefined>(undefined);
 
 export function SecretsProvider({ children }: { children: ReactNode }) {
-  const [secrets, setSecrets] = useState<Secret[]>([]);
+  const [secrets, setSecretsState] = useState<Secret[]>([]);
 
   useEffect(() => {
-    const savedSecrets = localStorage.getItem("global-secrets");
-    if (savedSecrets) {
-      try {
-        const parsed = JSON.parse(savedSecrets);
-        setTimeout(() => setSecrets(parsed), 0);
-      } catch (e) {
-        console.error("Failed to parse global secrets", e);
-      }
-    }
+    api.secrets
+      .getAll()
+      .then((data) => setSecretsState(data))
+      .catch((e: Error) => console.error("Failed to load secrets:", e));
   }, []);
 
-  const saveSecrets = (newSecrets: Secret[]) => {
-    setSecrets(newSecrets);
-    localStorage.setItem("global-secrets", JSON.stringify(newSecrets));
-  };
+  const saveSecrets = useCallback((newSecrets: Secret[]) => {
+    setSecretsState(newSecrets);
+    api.secrets
+      .saveAll(newSecrets)
+      .catch((e: Error) => console.error("Failed to save secrets:", e));
+  }, []);
 
   const addSecret = () => {
     saveSecrets([...secrets, { key: "", value: "", isEnabled: true }]);

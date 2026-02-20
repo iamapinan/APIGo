@@ -92,7 +92,7 @@ export function BodyEditor({ content, onChange }: BodyEditorProps) {
         ))}
         {list.length === 0 && (
           <div className="text-center text-xs text-zinc-500 dark:text-zinc-600 py-4">
-            No fields. Click "Add Field" to create one.
+            No fields. Click &quot;Add Field&quot; to create one.
           </div>
         )}
       </div>

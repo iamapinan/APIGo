@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
-import Hero from "./Hero";
-import Features from "./Features";
-import Footer from "./Footer";
+import Hero from "@/components/landing/Hero";
+import Features from "@/components/landing/Features";
+import Footer from "@/components/landing/Footer";
 import { useAuth } from "@/context/AuthContext";
 
 export default function LandingPage() {

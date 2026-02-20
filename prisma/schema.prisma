@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id    String @id // Firebase UID
+  email String @unique
+
+  // Relations
+  collections      CollectionItem[]   @relation("UserCollections")
+  histories        HistoryItem[]
+  environments     Environment[]      @relation("UserEnvironments")
+  secrets          Secret[]
+  globalHeaders    GlobalHeader[]
+}
+
+model CollectionItem {
+  id        String   @id @default(uuid())
+  name      String
+  type      String   // "folder" or "request"
+  method    String?  // e.g., "GET", "POST", etc.
+  url       String?
+  body      String?
+  headers   Json?    // Array of { key, value, isEnabled }
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Parent/Child relationship for folders
+  parentId  String?
+  parent    CollectionItem?  @relation("CollectionHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children  CollectionItem[] @relation("CollectionHierarchy")
+
+  // Owner
+  userId    String
+  user      User     @relation("UserCollections", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Sharing
+  shares    CollectionShare[]
+}
+
+model CollectionShare {
+  id           String         @id @default(uuid())
+  collectionId String
+  collection   CollectionItem @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  userEmail    String
+  
+  @@unique([collectionId, userEmail])
+}
+
+model HistoryItem {
+  id        String   @id @default(uuid())
+  method    String
+  url       String
+  date      DateTime @default(now())
+  body      String?
+  headers   Json?    // Array of { key, value, isEnabled }
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Environment {
+  id        String   @id @default(uuid())
+  name      String
+  variables Json     // Array of { key, value, isEnabled }
+  headers   Json?    // Array of { key, value, isEnabled }
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Owner
+  userId    String
+  user      User     @relation("UserEnvironments", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Sharing
+  shares    EnvironmentShare[]
+}
+
+model EnvironmentShare {
+  id            String      @id @default(uuid())
+  environmentId String
+  environment   Environment @relation(fields: [environmentId], references: [id], onDelete: Cascade)
+  userEmail     String
+
+  @@unique([environmentId, userEmail])
+}
+
+model Secret {
+  id        String   @id @default(uuid())
+  key       String
+  value     String
+  isEnabled Boolean  @default(true)
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model GlobalHeader {
+  id        String   @id @default(uuid())
+  key       String
+  value     String
+  isEnabled Boolean  @default(true)
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

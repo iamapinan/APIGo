@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Plus, Trash2, Save, Type, List } from "lucide-react";
+import { X, Plus, Trash2, Save, Type, List, Share2 } from "lucide-react";
 import {
   Environment,
   EnvironmentParameter,
 } from "@/utils/variable-substitution";
+import { ShareModal } from "@/components/shared/ShareModal";
 
 interface EnvironmentModalProps {
   isOpen: boolean;
@@ -29,6 +30,10 @@ export function EnvironmentModal({
   const [activeTab, setActiveTab] = useState<"variables" | "headers">(
     "variables",
   );
+  const [shareTarget, setShareTarget] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   useEffect(() => {
     setTimeout(() => {
@@ -155,18 +160,30 @@ export function EnvironmentModal({
                       : "hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
                   }`}
                 >
-                  <span className="truncate text-sm font-medium">
+                  <span className="truncate text-sm font-medium flex-1">
                     {env.name}
                   </span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteEnvironment(env.id);
-                    }}
-                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 dark:hover:bg-red-500/20 text-red-500 dark:text-red-400 rounded transition-opacity"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </button>
+                  <div className="flex items-center opacity-0 group-hover:opacity-100">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShareTarget({ id: env.id, name: env.name });
+                      }}
+                      className="p-1 hover:bg-indigo-50 dark:hover:bg-indigo-500/20 text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400 rounded transition-opacity"
+                      title="Share Environment"
+                    >
+                      <Share2 className="h-3 w-3" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteEnvironment(env.id);
+                      }}
+                      className="p-1 hover:bg-red-50 dark:hover:bg-red-500/20 text-red-500 dark:text-red-400 rounded transition-opacity"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -322,6 +339,16 @@ export function EnvironmentModal({
           </button>
         </div>
       </div>
+
+      {shareTarget && (
+        <ShareModal
+          isOpen={true}
+          onClose={() => setShareTarget(null)}
+          type="environment"
+          resourceId={shareTarget.id}
+          resourceName={shareTarget.name}
+        />
+      )}
     </div>
   );
 }

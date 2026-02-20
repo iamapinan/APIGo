@@ -35,6 +35,7 @@ import { useAuth } from "@/context/AuthContext";
 import LandingPage from "@/components/landing/LandingPage";
 import { LogOut, User as UserIcon } from "lucide-react";
 import Image from "next/image";
+import { api } from "@/utils/api";
 
 // Shared Header interface (compatible with postman-parser types)
 interface Header {
@@ -68,55 +69,115 @@ export default function Home() {
   const { isLoading, response, error, sendRequest } = useRequest();
   const { user, loading: authLoading, signOut } = useAuth();
 
-  // Load data from localStorage on mount
+  // Load data from API on mount
   useEffect(() => {
-    const savedHistory = localStorage.getItem("request-history");
-    if (savedHistory) {
-      try {
-        const parsedHistory = JSON.parse(savedHistory);
-        setTimeout(() => setHistory(parsedHistory), 0);
-      } catch (e) {
-        console.error("Failed to parse history", e);
-      }
-    }
+    // Load History from API
+    api.history
+      .getAll()
+      .then((data: HistoryItem[]) => {
+        setHistory(data);
+      })
+      .catch((e: Error) => {
+        console.error("Failed to fetch history from database:", e);
+      });
 
-    const savedCollections = localStorage.getItem("request-collections");
-    if (savedCollections) {
-      try {
-        setCollections(JSON.parse(savedCollections));
-      } catch (e) {
-        console.error("Failed to parse collections", e);
-      }
-    }
+    // Load Collections from API
+    api.collections
+      .getAll()
+      .then((data) => {
+        setCollections(data);
+      })
+      .catch((e: Error) => {
+        console.error("Failed to fetch collections from database:", e);
+      });
 
-    const savedEnvs = localStorage.getItem("environments");
-    if (savedEnvs) {
-      try {
-        setEnvironments(JSON.parse(savedEnvs));
-      } catch (e) {
-        console.error("Failed to parse environments", e);
-      }
-    }
-
-    const savedActiveEnvId = localStorage.getItem("active-environment-id");
-    if (savedActiveEnvId) {
-      setActiveEnvironmentId(savedActiveEnvId);
-    }
+    // Load Environments from API
+    api.environments
+      .getAll()
+      .then((data) => {
+        setEnvironments(
+          data.map((e: Environment) => ({
+            ...e,
+            variables:
+              typeof e.variables === "string"
+                ? JSON.parse(e.variables as string)
+                : e.variables,
+            headers:
+              e.headers && typeof e.headers === "string"
+                ? JSON.parse(e.headers as string)
+                : e.headers,
+          })),
+        );
+      })
+      .catch((e: Error) => {
+        console.error("Failed to fetch environments from database:", e);
+      });
   }, []);
 
-  // Save environments when changed
+  // Save environments to API
   const handleSaveEnvironments = (newEnvs: Environment[]) => {
+    const prevEnvs = environments;
     setEnvironments(newEnvs);
-    localStorage.setItem("environments", JSON.stringify(newEnvs));
+
+    // Diff: find added / updated / deleted
+    newEnvs.forEach((env) => {
+      const existing = prevEnvs.find((e) => e.id === env.id);
+      if (!existing) {
+        // New environment
+        api.environments
+          .create({
+            id: env.id,
+            name: env.name,
+            variables: env.variables,
+            headers: env.headers,
+          })
+          .catch((e: Error) =>
+            console.error("Failed to create environment:", e),
+          );
+      } else {
+        // Updated environment
+        api.environments
+          .update(env.id, {
+            name: env.name,
+            variables: env.variables,
+            headers: env.headers,
+          })
+          .catch((e: Error) =>
+            console.error("Failed to update environment:", e),
+          );
+      }
+    });
+
+    // Deleted environments
+    prevEnvs.forEach((env) => {
+      if (!newEnvs.find((e) => e.id === env.id)) {
+        api.environments
+          .delete(env.id)
+          .catch((e: Error) =>
+            console.error("Failed to delete environment:", e),
+          );
+      }
+    });
   };
 
   const handleSetActiveEnvironment = (id: string | null) => {
     setActiveEnvironmentId(id);
-    if (id) {
-      localStorage.setItem("active-environment-id", id);
-    } else {
-      localStorage.removeItem("active-environment-id");
-    }
+  };
+
+  // Delete individual history item
+  const handleDeleteHistory = (id: string) => {
+    setHistory((prev) => prev.filter((h) => h.id !== id));
+    api.history
+      .delete(id)
+      .catch((e: Error) => console.error("Failed to delete history item:", e));
+  };
+
+  // Clear all history
+  const handleClearHistory = () => {
+    setHistory([]);
+    api.history
+      .clearAll()
+      .catch((e: Error) => console.error("Failed to clear history:", e));
   };
 
   // Settings Modal State
@@ -139,7 +200,11 @@ export default function Home() {
 
     const newHistory = [newHistoryItem, ...history].slice(0, 50);
     setHistory(newHistory);
-    localStorage.setItem("request-history", JSON.stringify(newHistory));
+
+    // Sync to DB
+    api.history
+      .create(newHistoryItem)
+      .catch((e: Error) => console.error("Failed to save history", e));
 
     // Variable Substitution
     let finalUrl = url;
@@ -258,12 +323,23 @@ export default function Home() {
 
     const newCollections = updateItemInList(collections, activeItemId);
     setCollections(newCollections);
-    localStorage.setItem("request-collections", JSON.stringify(newCollections));
+
+    // Background sync to DB
+    api.collections
+      .update(activeItemId, {
+        method,
+        url,
+        headers,
+        body,
+      })
+      .catch((e) => console.error("Failed to update collection item in DB", e));
   };
 
   const handleImportCollections = (newCollections: CollectionItem[]) => {
+    // For now we just dump to state, later we can write a batch import API
     setCollections(newCollections);
-    localStorage.setItem("request-collections", JSON.stringify(newCollections));
+    // You would normally sync to DB here, requiring a recursive bulk insert API
+    // api.collections.import(newCollections);
   };
 
   const handleCreateCollectionItem = (
@@ -288,10 +364,10 @@ export default function Home() {
     if (!parentId) {
       const newCollections = [...collections, newItem];
       setCollections(newCollections);
-      localStorage.setItem(
-        "request-collections",
-        JSON.stringify(newCollections),
-      );
+
+      // Sync to DB
+      api.collections.create(newItem).catch((e) => console.error(e));
+
       if (type === "request") setActiveItemId(newItem.id);
       return;
     }
@@ -313,7 +389,12 @@ export default function Home() {
 
     const newCollections = addItemToList(collections);
     setCollections(newCollections);
-    localStorage.setItem("request-collections", JSON.stringify(newCollections));
+
+    // Sync to DB
+    api.collections
+      .create({ ...newItem, parentId })
+      .catch((e) => console.error(e));
+
     if (type === "request") setActiveItemId(newItem.id);
   };
 
@@ -331,7 +412,10 @@ export default function Home() {
     };
     const newCollections = editItemInList(collections);
     setCollections(newCollections);
-    localStorage.setItem("request-collections", JSON.stringify(newCollections));
+    // Sync to DB
+    api.collections
+      .update(id, { name: newName })
+      .catch((e) => console.error(e));
   };
 
   const handleDeleteCollectionItem = (id: string) => {
@@ -347,7 +431,9 @@ export default function Home() {
     };
     const newCollections = deleteItemFromList(collections);
     setCollections(newCollections);
-    localStorage.setItem("request-collections", JSON.stringify(newCollections));
+
+    // Sync DB Delete
+    api.collections.delete(id).catch((e) => console.error(e));
 
     if (activeItemId === id) {
       setActiveItemId(null);
@@ -389,10 +475,8 @@ export default function Home() {
         // Append to collections
         const newCollections = [...collections, ...importedItems];
         setCollections(newCollections);
-        localStorage.setItem(
-          "request-collections",
-          JSON.stringify(newCollections),
-        );
+        // Note: Real DB bulk import implementation needed
+        // api.collections.import(importedItems);
       } catch (err) {
         console.error("Failed to parse Postman file", err);
         alert("Invalid Postman Collection file");
@@ -442,6 +526,8 @@ export default function Home() {
             onSelectCollection={loadCollectionItem}
             onImport={() => fileInputRef.current?.click()}
             onOpenSettings={() => setIsSettingsOpen(true)}
+            onDeleteHistory={handleDeleteHistory}
+            onClearHistory={handleClearHistory}
             onCreateCollectionItem={handleCreateCollectionItem}
             onEditCollectionItem={handleEditCollectionItem}
             onDeleteCollectionItem={handleDeleteCollectionItem}

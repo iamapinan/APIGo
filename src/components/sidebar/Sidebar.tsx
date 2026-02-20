@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { History, Folder, Upload, Settings, FolderPlus } from "lucide-react";
+import {
+  History,
+  Folder,
+  Upload,
+  Settings,
+  FolderPlus,
+  Trash2,
+} from "lucide-react";
 import { HistoryList } from "./HistoryList";
 import { CollectionList } from "./CollectionList";
 import { CollectionItem, HistoryItem } from "@/utils/postman-parser";
@@ -13,6 +20,8 @@ interface SidebarProps {
   onSelectCollection: (item: CollectionItem) => void;
   onImport: () => void;
   onOpenSettings: () => void;
+  onDeleteHistory?: (id: string) => void;
+  onClearHistory?: () => void;
   onCreateCollectionItem?: (
     parentId: string | null,
     type: "folder" | "request",
@@ -28,6 +37,8 @@ export function Sidebar({
   onSelectCollection,
   onImport,
   onOpenSettings,
+  onDeleteHistory,
+  onClearHistory,
   onCreateCollectionItem,
   onEditCollectionItem,
   onDeleteCollectionItem,
@@ -63,12 +74,21 @@ export function Sidebar({
         </button>
       </div>
 
-      {/* Toolbar (Import) */}
+      {/* Toolbar */}
       <div className="px-3 py-2 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-white dark:bg-zinc-900/50">
         <span className="text-[10px] uppercase font-bold text-zinc-500 dark:text-zinc-600 tracking-wider">
           {activeTab === "history" ? "Recent Requests" : "Your Collections"}
         </span>
         <div className="flex items-center gap-2">
+          {activeTab === "history" && onClearHistory && history.length > 0 && (
+            <button
+              onClick={onClearHistory}
+              className="text-[10px] flex items-center gap-1 text-zinc-500 dark:text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+              title="Clear All History"
+            >
+              <Trash2 className="h-3 w-3" /> Clear All
+            </button>
+          )}
           {activeTab === "collections" && onCreateCollectionItem && (
             <button
               onClick={() => onCreateCollectionItem(null, "folder")}
@@ -91,7 +111,11 @@ export function Sidebar({
       {/* List Content */}
       <div className="flex-1 overflow-auto">
         {activeTab === "history" ? (
-          <HistoryList history={history} onSelect={onSelectHistory} />
+          <HistoryList
+            history={history}
+            onSelect={onSelectHistory}
+            onDelete={onDeleteHistory}
+          />
         ) : (
           <CollectionList
             items={collections}

@@ -44,7 +44,7 @@ export function ResponseBody({ body, contentType }: ResponseBodyProps) {
     );
   }
 
-  let displayContent = body;
+  const displayContent = body;
   let formattedJson = "";
   const isJson =
     contentType?.includes("application/json") ||

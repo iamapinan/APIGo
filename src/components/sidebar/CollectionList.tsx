@@ -9,9 +9,11 @@ import {
   Plus,
   Trash2,
   Edit2,
+  Share2,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { CollectionItem } from "@/utils/postman-parser";
+import { ShareModal } from "@/components/shared/ShareModal";
 
 interface CollectionListProps {
   items: CollectionItem[];
@@ -30,6 +32,11 @@ export function CollectionList({
   onEditItem,
   onDeleteItem,
 }: CollectionListProps) {
+  const [shareTarget, setShareTarget] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+
   if (!items || items.length === 0) {
     if (level === 0) {
       return (
@@ -43,19 +50,35 @@ export function CollectionList({
   }
 
   return (
-    <div className="flex flex-col">
-      {items.map((item) => (
-        <CollectionItemRenderer
-          key={item.id}
-          item={item}
-          onSelect={onSelect}
-          level={level}
-          onCreateItem={onCreateItem}
-          onEditItem={onEditItem}
-          onDeleteItem={onDeleteItem}
+    <>
+      <div className="flex flex-col">
+        {items.map((item) => (
+          <CollectionItemRenderer
+            key={item.id}
+            item={item}
+            onSelect={onSelect}
+            level={level}
+            onCreateItem={onCreateItem}
+            onEditItem={onEditItem}
+            onDeleteItem={onDeleteItem}
+            onShareItem={
+              level === 0
+                ? (id, name) => setShareTarget({ id, name })
+                : undefined
+            }
+          />
+        ))}
+      </div>
+      {shareTarget && (
+        <ShareModal
+          isOpen={true}
+          onClose={() => setShareTarget(null)}
+          type="collection"
+          resourceId={shareTarget.id}
+          resourceName={shareTarget.name}
         />
-      ))}
-    </div>
+      )}
+    </>
   );
 }
 
@@ -66,6 +89,7 @@ function CollectionItemRenderer({
   onCreateItem,
   onEditItem,
   onDeleteItem,
+  onShareItem,
 }: {
   item: CollectionItem;
   onSelect: (item: CollectionItem) => void;
@@ -73,6 +97,7 @@ function CollectionItemRenderer({
   onCreateItem?: (parentId: string, type: "folder" | "request") => void;
   onEditItem?: (id: string, newName: string) => void;
   onDeleteItem?: (id: string) => void;
+  onShareItem?: (id: string, name: string) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -165,6 +190,18 @@ function CollectionItemRenderer({
                 title="Edit Folder"
               >
                 <Edit2 className="h-3 w-3" />
+              </button>
+            )}
+            {onShareItem && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onShareItem(item.id, item.name);
+                }}
+                className="p-1 hover:bg-indigo-50 dark:hover:bg-zinc-700 text-zinc-500 hover:text-indigo-500 dark:hover:text-indigo-400 rounded transition-colors"
+                title="Share Collection"
+              >
+                <Share2 className="h-3 w-3" />
               </button>
             )}
             {onDeleteItem && (

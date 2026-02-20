@@ -17,7 +17,13 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "API Go!",
-  description: "A modern, open-source API testing tool",
+  description:
+    "Open-source, cloud-synced API testing workspace. Organize collections, manage environments, share with your team.",
+  icons: {
+    icon: "/apigo-icon.svg",
+    shortcut: "/apigo-icon.svg",
+    apple: "/apigo-icon.svg",
+  },
 };
 
 import { AuthProvider } from "@/context/AuthContext";

@@ -6,7 +6,9 @@ import {
   useState,
   useEffect,
   ReactNode,
+  useCallback,
 } from "react";
+import { api } from "@/utils/api";
 
 export interface GlobalHeader {
   key: string;
@@ -31,24 +33,21 @@ const GlobalHeadersContext = createContext<
 >(undefined);
 
 export function GlobalHeadersProvider({ children }: { children: ReactNode }) {
-  const [globalHeaders, setGlobalHeaders] = useState<GlobalHeader[]>([]);
+  const [globalHeaders, setGlobalHeadersState] = useState<GlobalHeader[]>([]);
 
   useEffect(() => {
-    const savedHeaders = localStorage.getItem("global-headers");
-    if (savedHeaders) {
-      try {
-        const parsed = JSON.parse(savedHeaders);
-        setTimeout(() => setGlobalHeaders(parsed), 0);
-      } catch (e) {
-        console.error("Failed to parse global headers", e);
-      }
-    }
+    api.globalHeaders
+      .getAll()
+      .then((data) => setGlobalHeadersState(data))
+      .catch((e: Error) => console.error("Failed to load global headers:", e));
   }, []);
 
-  const saveHeaders = (headers: GlobalHeader[]) => {
-    setGlobalHeaders(headers);
-    localStorage.setItem("global-headers", JSON.stringify(headers));
-  };
+  const saveHeaders = useCallback((headers: GlobalHeader[]) => {
+    setGlobalHeadersState(headers);
+    api.globalHeaders
+      .saveAll(headers)
+      .catch((e: Error) => console.error("Failed to save global headers:", e));
+  }, []);
 
   const addGlobalHeader = () => {
     saveHeaders([...globalHeaders, { key: "", value: "", isEnabled: true }]);
