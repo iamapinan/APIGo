@@ -105,7 +105,7 @@ export function Sidebar({
 
       {/* Footer */}
       <div className="p-3 border-t border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 dark:text-zinc-600 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900">
-        <span>v1.4.0</span>
+        <span>v1.5.0</span>
         <button
           onClick={onOpenSettings}
           className="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"

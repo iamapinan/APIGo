@@ -44,37 +44,36 @@ export function ResponseBody({ body, contentType }: ResponseBodyProps) {
     );
   }
 
-  let content = body;
-  let isJson =
+  let displayContent = body;
+  let formattedJson = "";
+  const isJson =
     contentType?.includes("application/json") ||
     (typeof body === "string" &&
       (body.trim().startsWith("{") || body.trim().startsWith("[")));
 
   if (isJson) {
     try {
-      // Try to parse and re-stringify with indentation
       const parsed = JSON.parse(body);
       const stringified = JSON.stringify(parsed, null, 2);
-
-      return (
-        <div className="h-full overflow-auto bg-white dark:bg-zinc-950 p-4 rounded-md border border-zinc-200 dark:border-zinc-700">
-          <pre
-            className="text-xs font-mono text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap break-all"
-            dangerouslySetInnerHTML={{ __html: colorizeJson(stringified) }}
-          />
-        </div>
-      );
-    } catch (e) {
-      // If parsing fails, leave as is (maybe it's not valid JSON despite the content-type)
-      console.warn("Failed to beautify JSON", e);
+      formattedJson = colorizeJson(stringified);
+    } catch {
+      // If parsing fails, fall back to plain text
     }
   }
 
   return (
     <div className="h-full overflow-auto bg-white dark:bg-zinc-950 p-4 rounded-md border border-zinc-200 dark:border-zinc-700">
-      <pre className="text-xs font-mono text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap break-all">
-        {content}
-      </pre>
+      {formattedJson ? (
+        <pre
+          className="text-xs font-mono text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap break-all"
+          dangerouslySetInnerHTML={{ __html: formattedJson }}
+        />
+      ) : (
+        <pre className="text-xs font-mono text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap break-all">
+          {displayContent}
+        </pre>
+      )}
     </div>
   );
 }
+

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { parseBodyContent } from "@/utils/request-types";
 
 interface Header {
   key: string;
@@ -38,7 +39,7 @@ export function useRequest(): UseRequestReturn {
     url: string,
     method: string,
     headers: Header[],
-    body: string,
+    bodyString: string,
   ) => {
     setIsLoading(true);
     setError(null);
@@ -53,17 +54,36 @@ export function useRequest(): UseRequestReturn {
 
       const processedUrl = url.startsWith("http") ? url : `https://${url}`;
 
+      const structuredBody = parseBodyContent(bodyString);
+
+      // Determine the payload to send to the proxy
+      // We will send the structured representation, and let the proxy handle the actual construction
+      const proxyPayload = {
+        url: processedUrl,
+        method,
+        headers: requestHeaders,
+        bodyType: structuredBody.type,
+        bodyData:
+          structuredBody.type === "raw"
+            ? structuredBody.raw
+            : structuredBody.type === "urlencoded"
+              ? structuredBody.urlencoded.filter((i) => i.isEnabled && i.key)
+              : structuredBody.type === "formdata"
+                ? structuredBody.formdata.filter((i) => i.isEnabled && i.key)
+                : undefined,
+      };
+
+      if (["GET", "HEAD"].includes(method)) {
+        proxyPayload.bodyType = "none";
+        proxyPayload.bodyData = undefined;
+      }
+
       const res = await fetch("/api/proxy", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          url: processedUrl,
-          method,
-          headers: requestHeaders,
-          body: ["GET", "HEAD"].includes(method) ? undefined : body,
-        }),
+        body: JSON.stringify(proxyPayload),
       });
 
       const data = await res.json();
@@ -85,9 +105,10 @@ export function useRequest(): UseRequestReturn {
         size: new Blob([data.body]).size,
         contentType: data.headers["content-type"] || null,
       });
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
-      // If the proxy fails, we might still get some response info, but usually it's a 500
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Something went wrong";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

@@ -21,6 +21,11 @@ import {
   substituteVariables,
   substituteHeaders,
 } from "@/utils/variable-substitution";
+import {
+  parseBodyContent,
+  stringifyBodyContent,
+  substituteStructuredBody,
+} from "@/utils/request-types";
 import { EnvironmentModal } from "@/components/environments/EnvironmentModal";
 import { EnvironmentSelector } from "@/components/environments/EnvironmentSelector";
 import { SettingsModal } from "@/components/settings/SettingsModal";
@@ -133,7 +138,7 @@ export default function Home() {
     // Variable Substitution
     let finalUrl = url;
     let finalHeaders = headers;
-    let finalBody = body;
+    let finalStructuredBody = parseBodyContent(body);
 
     // 1. Substitute with Environment Variables
     const activeEnv = environments.find((e) => e.id === activeEnvironmentId);
@@ -143,7 +148,10 @@ export default function Home() {
       if (activeEnv.variables.length > 0) {
         finalUrl = substituteVariables(finalUrl, activeEnv.variables);
         finalHeaders = substituteHeaders(finalHeaders, activeEnv.variables);
-        finalBody = substituteVariables(finalBody, activeEnv.variables);
+        finalStructuredBody = substituteStructuredBody(
+          finalStructuredBody,
+          (val) => substituteVariables(val, activeEnv.variables),
+        );
       }
 
       // Prepare Environment Headers
@@ -167,7 +175,10 @@ export default function Home() {
     if (secrets.length > 0) {
       finalUrl = substituteVariables(finalUrl, secrets);
       finalHeaders = substituteHeaders(finalHeaders, secrets);
-      finalBody = substituteVariables(finalBody, secrets);
+      finalStructuredBody = substituteStructuredBody(
+        finalStructuredBody,
+        (val) => substituteVariables(val, secrets),
+      );
     }
 
     // 3. Inject Global Headers
@@ -204,7 +215,12 @@ export default function Home() {
       ...substitutedGlobalHeaders,
     ];
 
-    await sendRequest(finalUrl, method, mergedHeaders, finalBody);
+    await sendRequest(
+      finalUrl,
+      method,
+      mergedHeaders,
+      stringifyBodyContent(finalStructuredBody),
+    );
   };
 
   const handleSave = () => {

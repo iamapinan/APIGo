@@ -13,7 +13,7 @@ interface PostmanUrl {
   host?: string[];
   path?: string[];
   query?: { key: string; value: string }[];
-  variable?: any[];
+  variable?: unknown[];
 }
 
 interface PostmanRequest {
@@ -22,7 +22,7 @@ interface PostmanRequest {
   body?: {
     mode: string;
     raw: string;
-    options?: any;
+    options?: unknown;
   };
   url: string | PostmanUrl;
 }
@@ -68,8 +68,6 @@ export interface HistoryItem {
 export function parsePostmanCollection(
   json: PostmanCollection,
 ): CollectionItem[] {
-  const items: CollectionItem[] = [];
-
   function traverse(node: PostmanItem[]): CollectionItem[] {
     if (!node || !Array.isArray(node)) return [];
 
