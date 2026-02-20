@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { APP_USER_AGENT } from "@/utils/user-agent";
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,7 +10,10 @@ export async function POST(req: NextRequest) {
     }
 
     let fetchBody: string | URLSearchParams | FormData | undefined = undefined;
-    const fetchHeaders: Record<string, string> = { ...headers };
+    const fetchHeaders: Record<string, string> = {
+      ...headers,
+      "User-Agent": APP_USER_AGENT,
+    };
 
     if (!["GET", "HEAD"].includes(method) && bodyType !== "none") {
       if (bodyType === "raw") {

@@ -4,7 +4,7 @@
 
 <h1 align="center">API Go!</h1>
 <p align="center">
-  <strong>Open-source, cloud-synced API testing workspace</strong><br/>
+  <strong>Self-hosted, cloud-synced API testing workspace</strong><br/>
   Built with Next.js 15 · Firebase Auth · PostgreSQL · Prisma · <a href="https://apigo.gracer.co.th" target="_blank">Demo</a>
 </p>
 
