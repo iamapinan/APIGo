@@ -14,7 +14,7 @@ import {
   HistoryItem,
 } from "@/utils/postman-parser";
 import { History, GripVertical, GripHorizontal } from "lucide-react";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { Panel, Group, Separator } from "react-resizable-panels";
 
 // Environment Imports
 import {
@@ -522,11 +522,16 @@ export default function Home() {
 
   return (
     <main className="flex h-screen w-full bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 overflow-hidden">
-      <PanelGroup direction="horizontal">
+      <Group orientation="horizontal">
         {/* Sidebar */}
         {isSidebarOpen && (
           <>
-            <Panel defaultSize={20} minSize={15} maxSize={40} className="h-full flex flex-col bg-zinc-100 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800">
+            <Panel
+              defaultSize={20}
+              minSize={15}
+              maxSize={40}
+              className="h-full flex flex-col bg-zinc-100 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800"
+            >
               {/* Hidden Input for Import */}
               <input
                 type="file"
@@ -549,82 +554,82 @@ export default function Home() {
                 onDeleteCollectionItem={handleDeleteCollectionItem}
               />
             </Panel>
-            <PanelResizeHandle className="w-1 bg-zinc-200 dark:border-zinc-800/50 hover:bg-indigo-500/50 transition-colors flex items-center justify-center group relative z-10 transition-colors">
+            <Separator className="w-1 bg-zinc-200 dark:border-zinc-800/50 hover:bg-indigo-500/50 transition-colors flex items-center justify-center group relative z-10 transition-colors">
               <div className="h-8 w-1 rounded bg-zinc-400 dark:bg-zinc-600 group-hover:bg-indigo-400 transition-colors" />
-            </PanelResizeHandle>
+            </Separator>
           </>
         )}
 
         {/* Main Content */}
         <Panel defaultSize={80}>
           <div className="flex-1 h-full flex flex-col min-w-0">
-        {/* Top Navigation / Header */}
-        <header className="h-12 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 flex items-center justify-between px-4">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
-            >
-              <History className="h-4 w-4" />
-            </button>
-            <div className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-              API Go!
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <EnvironmentSelector
-              environments={environments}
-              activeEnvironmentId={activeEnvironmentId}
-              onSelect={handleSetActiveEnvironment}
-              onManage={() => setIsEnvModalOpen(true)}
-            />
-
-            <div className="h-6 w-[1px] bg-zinc-200 dark:bg-zinc-800 mx-2" />
-
-            <div className="flex items-center gap-3">
-              {user.photoURL ? (
-                <Image
-                  src={user.photoURL}
-                  alt={user.displayName || "User"}
-                  width={28}
-                  height={28}
-                  unoptimized
-                  className="h-7 w-7 rounded-full border border-zinc-200 dark:border-zinc-700 object-cover"
-                />
-              ) : (
-                <div className="h-7 w-7 rounded-full bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
-                  <UserIcon className="h-4 w-4 text-indigo-400" />
+            {/* Top Navigation / Header */}
+            <header className="h-12 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 flex items-center justify-between px-4">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                  className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
+                >
+                  <History className="h-4 w-4" />
+                </button>
+                <div className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                  API Go!
                 </div>
-              )}
-              <button
-                onClick={signOut}
-                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 transition-colors"
-                title="Sign Out"
-              >
-                <LogOut className="h-4 w-4" />
-              </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <EnvironmentSelector
+                  environments={environments}
+                  activeEnvironmentId={activeEnvironmentId}
+                  onSelect={handleSetActiveEnvironment}
+                  onManage={() => setIsEnvModalOpen(true)}
+                />
+
+                <div className="h-6 w-[1px] bg-zinc-200 dark:bg-zinc-800 mx-2" />
+
+                <div className="flex items-center gap-3">
+                  {user.photoURL ? (
+                    <Image
+                      src={user.photoURL}
+                      alt={user.displayName || "User"}
+                      width={28}
+                      height={28}
+                      unoptimized
+                      className="h-7 w-7 rounded-full border border-zinc-200 dark:border-zinc-700 object-cover"
+                    />
+                  ) : (
+                    <div className="h-7 w-7 rounded-full bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
+                      <UserIcon className="h-4 w-4 text-indigo-400" />
+                    </div>
+                  )}
+                  <button
+                    onClick={signOut}
+                    className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 transition-colors"
+                    title="Sign Out"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </header>
+
+            {/* URL Bar */}
+            <div className="p-4 bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800 flex gap-0">
+              <MethodSelector value={method} onChange={setMethod} />
+              <UrlInput
+                value={url}
+                onChange={setUrl}
+                onSend={handleSend}
+                onSave={handleSave}
+                canSave={!!activeItemId}
+              />
             </div>
-          </div>
-        </header>
 
-        {/* URL Bar */}
-        <div className="p-4 bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800 flex gap-0">
-          <MethodSelector value={method} onChange={setMethod} />
-          <UrlInput
-            value={url}
-            onChange={setUrl}
-            onSend={handleSend}
-            onSave={handleSave}
-            canSave={!!activeItemId}
-          />
-        </div>
-
-        {/* Content Area - Split Vertical */}
-        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-          <PanelGroup direction="horizontal">
-            {/* Sidebar (Optional) - Handled separately if isSidebarOpen but PanelGroup needs children */}
-            {/* Note: In this layout, Sidebar is outside Main Content div. 
+            {/* Content Area - Split Vertical */}
+            <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+              <Group orientation="horizontal">
+                {/* Sidebar (Optional) - Handled separately if isSidebarOpen but PanelGroup needs children */}
+                {/* Note: In this layout, Sidebar is outside Main Content div. 
                 Wait, looking at line 523, the main is flex h-screen w-full.
                 Sidebar line 525-549.
                 Main Content div line 552-658.
@@ -633,58 +638,59 @@ export default function Home() {
                 Actually, putting everything in one PanelGroup is cleaner.
             */}
 
-            {/* Request & Response Sections */}
-            <Panel defaultSize={50} minSize={30}>
-              <div className="h-full flex flex-col border-b md:border-b-0 md:border-r border-zinc-200 dark:border-zinc-800 min-h-[300px]">
-                <RequestPanel
-                  headers={headers}
-                  body={body}
-                  onHeadersChange={setHeaders}
-                  onBodyChange={setBody}
-                  globalHeaders={globalHeaders}
-                  environmentHeaders={
-                    environments.find((e) => e.id === activeEnvironmentId)
-                      ?.headers || []
-                  }
-                />
-              </div>
-            </Panel>
-
-            <PanelResizeHandle className="w-1 bg-zinc-200 dark:bg-zinc-800/50 hover:bg-indigo-500/50 transition-colors flex items-center justify-center group">
-              <div className="h-8 w-1 rounded bg-zinc-400 dark:bg-zinc-600 group-hover:bg-indigo-400 transition-colors" />
-            </PanelResizeHandle>
-
-            <Panel defaultSize={50} minSize={30}>
-              {/* Response Section */}
-              <div className="h-full flex flex-col bg-zinc-100 dark:bg-zinc-900/30 min-h-[300px]">
-                {/* Response Meta Bar */}
-                <div className="h-10 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 flex items-center px-4 justify-between">
-                  <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
-                    Response
-                  </span>
-                  {response && (
-                    <ResponseMeta
-                      status={response.status}
-                      statusText={response.statusText}
-                      time={response.time}
-                      size={response.size}
+                {/* Request & Response Sections */}
+                <Panel defaultSize={50} minSize={30}>
+                  <div className="h-full flex flex-col border-b md:border-b-0 md:border-r border-zinc-200 dark:border-zinc-800 min-h-[300px]">
+                    <RequestPanel
+                      headers={headers}
+                      body={body}
+                      onHeadersChange={setHeaders}
+                      onBodyChange={setBody}
+                      globalHeaders={globalHeaders}
+                      environmentHeaders={
+                        environments.find((e) => e.id === activeEnvironmentId)
+                          ?.headers || []
+                      }
                     />
-                  )}
-                </div>
+                  </div>
+                </Panel>
 
-                <div className="flex-1 overflow-hidden p-0 relative">
-                  <ResponsePanel
-                    response={response}
-                    isLoading={isLoading}
-                    error={error}
-                  />
-                </div>
-              </div>
-            </Panel>
-          </PanelGroup>
+                <Separator className="w-1 bg-zinc-200 dark:bg-zinc-800/50 hover:bg-indigo-500/50 transition-colors flex items-center justify-center group">
+                  <div className="h-8 w-1 rounded bg-zinc-400 dark:bg-zinc-600 group-hover:bg-indigo-400 transition-colors" />
+                </Separator>
+
+                <Panel defaultSize={50} minSize={30}>
+                  {/* Response Section */}
+                  <div className="h-full flex flex-col bg-zinc-100 dark:bg-zinc-900/30 min-h-[300px]">
+                    {/* Response Meta Bar */}
+                    <div className="h-10 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 flex items-center px-4 justify-between">
+                      <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+                        Response
+                      </span>
+                      {response && (
+                        <ResponseMeta
+                          status={response.status}
+                          statusText={response.statusText}
+                          time={response.time}
+                          size={response.size}
+                        />
+                      )}
+                    </div>
+
+                    <div className="flex-1 overflow-hidden p-0 relative">
+                      <ResponsePanel
+                        response={response}
+                        isLoading={isLoading}
+                        error={error}
+                      />
+                    </div>
+                  </div>
+                </Panel>
+              </Group>
+            </div>
           </div>
         </Panel>
-      </PanelGroup>
+      </Group>
 
       <EnvironmentModal
         isOpen={isEnvModalOpen}
