@@ -13,7 +13,8 @@ import {
   CollectionItem,
   HistoryItem,
 } from "@/utils/postman-parser";
-import { History } from "lucide-react";
+import { History, GripVertical, GripHorizontal } from "lucide-react";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 // Environment Imports
 import {
@@ -521,35 +522,42 @@ export default function Home() {
 
   return (
     <main className="flex h-screen w-full bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 overflow-hidden">
-      {/* Sidebar */}
-      {isSidebarOpen && (
-        <div className="h-full flex flex-col bg-zinc-100 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800">
-          {/* Hidden Input for Import */}
-          <input
-            type="file"
-            ref={fileInputRef}
-            className="hidden"
-            accept=".json"
-            onChange={handleFileUpload}
-          />
-          <Sidebar
-            history={history}
-            collections={collections}
-            onSelectHistory={loadHistoryItem}
-            onSelectCollection={loadCollectionItem}
-            onImport={() => fileInputRef.current?.click()}
-            onOpenSettings={() => setIsSettingsOpen(true)}
-            onDeleteHistory={handleDeleteHistory}
-            onClearHistory={handleClearHistory}
-            onCreateCollectionItem={handleCreateCollectionItem}
-            onEditCollectionItem={handleEditCollectionItem}
-            onDeleteCollectionItem={handleDeleteCollectionItem}
-          />
-        </div>
-      )}
+      <PanelGroup direction="horizontal">
+        {/* Sidebar */}
+        {isSidebarOpen && (
+          <>
+            <Panel defaultSize={20} minSize={15} maxSize={40} className="h-full flex flex-col bg-zinc-100 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800">
+              {/* Hidden Input for Import */}
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept=".json"
+                onChange={handleFileUpload}
+              />
+              <Sidebar
+                history={history}
+                collections={collections}
+                onSelectHistory={loadHistoryItem}
+                onSelectCollection={loadCollectionItem}
+                onImport={() => fileInputRef.current?.click()}
+                onOpenSettings={() => setIsSettingsOpen(true)}
+                onDeleteHistory={handleDeleteHistory}
+                onClearHistory={handleClearHistory}
+                onCreateCollectionItem={handleCreateCollectionItem}
+                onEditCollectionItem={handleEditCollectionItem}
+                onDeleteCollectionItem={handleDeleteCollectionItem}
+              />
+            </Panel>
+            <PanelResizeHandle className="w-1 bg-zinc-200 dark:border-zinc-800/50 hover:bg-indigo-500/50 transition-colors flex items-center justify-center group relative z-10 transition-colors">
+              <div className="h-8 w-1 rounded bg-zinc-400 dark:bg-zinc-600 group-hover:bg-indigo-400 transition-colors" />
+            </PanelResizeHandle>
+          </>
+        )}
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
+        {/* Main Content */}
+        <Panel defaultSize={80}>
+          <div className="flex-1 h-full flex flex-col min-w-0">
         {/* Top Navigation / Header */}
         <header className="h-12 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 flex items-center justify-between px-4">
           <div className="flex items-center gap-4">
@@ -614,48 +622,69 @@ export default function Home() {
 
         {/* Content Area - Split Vertical */}
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-          {/* Request Section */}
-          <div className="flex-1 flex flex-col border-b md:border-b-0 md:border-r border-zinc-200 dark:border-zinc-800 min-h-[300px]">
-            <RequestPanel
-              headers={headers}
-              body={body}
-              onHeadersChange={setHeaders}
-              onBodyChange={setBody}
-              globalHeaders={globalHeaders}
-              environmentHeaders={
-                environments.find((e) => e.id === activeEnvironmentId)
-                  ?.headers || []
-              }
-            />
-          </div>
+          <PanelGroup direction="horizontal">
+            {/* Sidebar (Optional) - Handled separately if isSidebarOpen but PanelGroup needs children */}
+            {/* Note: In this layout, Sidebar is outside Main Content div. 
+                Wait, looking at line 523, the main is flex h-screen w-full.
+                Sidebar line 525-549.
+                Main Content div line 552-658.
+                I should move Sidebar inside a PanelGroup for a better experience if possible,
+                but I'll stick to the current layout structure if it's easier to maintain isSidebarOpen.
+                Actually, putting everything in one PanelGroup is cleaner.
+            */}
 
-          {/* Response Section */}
-          <div className="flex-1 flex flex-col bg-zinc-100 dark:bg-zinc-900/30 min-h-[300px]">
-            {/* Response Meta Bar */}
-            <div className="h-10 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 flex items-center px-4 justify-between">
-              <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
-                Response
-              </span>
-              {response && (
-                <ResponseMeta
-                  status={response.status}
-                  statusText={response.statusText}
-                  time={response.time}
-                  size={response.size}
+            {/* Request & Response Sections */}
+            <Panel defaultSize={50} minSize={30}>
+              <div className="h-full flex flex-col border-b md:border-b-0 md:border-r border-zinc-200 dark:border-zinc-800 min-h-[300px]">
+                <RequestPanel
+                  headers={headers}
+                  body={body}
+                  onHeadersChange={setHeaders}
+                  onBodyChange={setBody}
+                  globalHeaders={globalHeaders}
+                  environmentHeaders={
+                    environments.find((e) => e.id === activeEnvironmentId)
+                      ?.headers || []
+                  }
                 />
-              )}
-            </div>
+              </div>
+            </Panel>
 
-            <div className="flex-1 overflow-hidden p-0 relative">
-              <ResponsePanel
-                response={response}
-                isLoading={isLoading}
-                error={error}
-              />
-            </div>
+            <PanelResizeHandle className="w-1 bg-zinc-200 dark:bg-zinc-800/50 hover:bg-indigo-500/50 transition-colors flex items-center justify-center group">
+              <div className="h-8 w-1 rounded bg-zinc-400 dark:bg-zinc-600 group-hover:bg-indigo-400 transition-colors" />
+            </PanelResizeHandle>
+
+            <Panel defaultSize={50} minSize={30}>
+              {/* Response Section */}
+              <div className="h-full flex flex-col bg-zinc-100 dark:bg-zinc-900/30 min-h-[300px]">
+                {/* Response Meta Bar */}
+                <div className="h-10 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 flex items-center px-4 justify-between">
+                  <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+                    Response
+                  </span>
+                  {response && (
+                    <ResponseMeta
+                      status={response.status}
+                      statusText={response.statusText}
+                      time={response.time}
+                      size={response.size}
+                    />
+                  )}
+                </div>
+
+                <div className="flex-1 overflow-hidden p-0 relative">
+                  <ResponsePanel
+                    response={response}
+                    isLoading={isLoading}
+                    error={error}
+                  />
+                </div>
+              </div>
+            </Panel>
+          </PanelGroup>
           </div>
-        </div>
-      </div>
+        </Panel>
+      </PanelGroup>
 
       <EnvironmentModal
         isOpen={isEnvModalOpen}
