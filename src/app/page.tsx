@@ -527,7 +527,7 @@ export default function Home() {
         {isSidebarOpen && (
           <>
             <Panel
-              defaultSize={20}
+              defaultSize={30}
               minSize={10}
               maxSize={50}
               className="h-full flex flex-col bg-zinc-100 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800"
@@ -554,14 +554,14 @@ export default function Home() {
                 onDeleteCollectionItem={handleDeleteCollectionItem}
               />
             </Panel>
-            <Separator className="w-2 group bg-transparent hover:bg-indigo-500/10 transition-colors relative z-10 flex items-center justify-center cursor-col-resize">
+            <Separator className="w-1 group bg-transparent hover:bg-indigo-500/10 transition-colors relative z-10 flex items-center justify-center cursor-col-resize">
               <div className="w-px h-full bg-zinc-200 dark:bg-zinc-800 group-hover:bg-indigo-500 transition-colors" />
             </Separator>
           </>
         )}
 
         {/* Main Content */}
-        <Panel defaultSize={80}>
+        <Panel defaultSize={70}>
           <div className="flex-1 h-full flex flex-col min-w-0">
             {/* Top Navigation / Header */}
             <header className="h-12 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 flex items-center justify-between px-4">
