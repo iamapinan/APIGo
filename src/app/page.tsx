@@ -528,8 +528,8 @@ export default function Home() {
           <>
             <Panel
               defaultSize={20}
-              minSize={15}
-              maxSize={40}
+              minSize={10}
+              maxSize={50}
               className="h-full flex flex-col bg-zinc-100 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800"
             >
               {/* Hidden Input for Import */}
@@ -554,8 +554,8 @@ export default function Home() {
                 onDeleteCollectionItem={handleDeleteCollectionItem}
               />
             </Panel>
-            <Separator className="w-1 bg-zinc-200 dark:border-zinc-800/50 hover:bg-indigo-500/50 transition-colors flex items-center justify-center group relative z-10 transition-colors">
-              <div className="h-8 w-1 rounded bg-zinc-400 dark:bg-zinc-600 group-hover:bg-indigo-400 transition-colors" />
+            <Separator className="w-2 group bg-transparent hover:bg-indigo-500/10 transition-colors relative z-10 flex items-center justify-center cursor-col-resize">
+              <div className="w-px h-full bg-zinc-200 dark:bg-zinc-800 group-hover:bg-indigo-500 transition-colors" />
             </Separator>
           </>
         )}
@@ -655,8 +655,8 @@ export default function Home() {
                   </div>
                 </Panel>
 
-                <Separator className="w-1 bg-zinc-200 dark:bg-zinc-800/50 hover:bg-indigo-500/50 transition-colors flex items-center justify-center group">
-                  <div className="h-8 w-1 rounded bg-zinc-400 dark:bg-zinc-600 group-hover:bg-indigo-400 transition-colors" />
+                <Separator className="w-2 group bg-transparent hover:bg-indigo-500/10 transition-colors relative z-10 flex items-center justify-center cursor-col-resize">
+                  <div className="w-px h-full bg-zinc-200 dark:bg-zinc-800 group-hover:bg-indigo-500 transition-colors" />
                 </Separator>
 
                 <Panel defaultSize={50} minSize={30}>
