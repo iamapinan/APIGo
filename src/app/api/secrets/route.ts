@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthUser } from "@/utils/auth-server";
 import prisma from "@/utils/prisma";
+import { ensureUser } from "@/utils/ensure-user";
 
 export async function GET(req: Request) {
   const user = await getAuthUser(req);
@@ -29,6 +30,8 @@ export async function PUT(req: Request) {
   }
 
   try {
+    await ensureUser(user.uid, user.email || "");
+
     const secrets: {
       id?: string;
       key: string;

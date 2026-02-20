@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthUser } from "@/utils/auth-server";
 import prisma from "@/utils/prisma";
+import { ensureUser } from "@/utils/ensure-user";
 
 export async function GET(req: Request) {
   const user = await getAuthUser(req);
@@ -9,6 +10,7 @@ export async function GET(req: Request) {
   }
 
   try {
+    await ensureUser(user.uid, user.email || "");
     const environments = await prisma.environment.findMany({
       where: {
         OR: [
@@ -37,6 +39,8 @@ export async function POST(req: Request) {
   }
 
   try {
+    await ensureUser(user.uid, user.email || "");
+
     const { id, name, variables, headers } = await req.json();
 
     const newEnvironment = await prisma.environment.create({

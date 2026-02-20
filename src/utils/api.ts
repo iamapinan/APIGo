@@ -95,6 +95,12 @@ export const api = {
         method: "POST",
         body: JSON.stringify({ collectionId, userEmail }),
       }),
+
+    importAll: (items: CollectionItem[]): Promise<{ success: boolean }> =>
+      fetchWithAuth("/api/collections", {
+        method: "PUT",
+        body: JSON.stringify(items),
+      }),
   },
 
   history: {

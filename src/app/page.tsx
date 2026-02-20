@@ -71,6 +71,8 @@ export default function Home() {
 
   // Load data from API on mount
   useEffect(() => {
+    if (!user) return;
+
     // Load History from API
     api.history
       .getAll()
@@ -112,7 +114,7 @@ export default function Home() {
       .catch((e: Error) => {
         console.error("Failed to fetch environments from database:", e);
       });
-  }, []);
+  }, [user]);
 
   // Save environments to API
   const handleSaveEnvironments = (newEnvs: Environment[]) => {
@@ -258,8 +260,8 @@ export default function Home() {
     // Strategy: Append global headers that are enabled. fetch will handle duplicates if allowed, or we can merge.
     // Let's merge: simple append.
     const activeGlobalHeaders = globalHeaders
-      .filter((h) => h.isEnabled)
-      .map((h) => ({
+      .filter((h: { isEnabled: boolean }) => h.isEnabled)
+      .map((h: { key: string; value: string }) => ({
         key: h.key,
         value: h.value,
         isEnabled: true,
@@ -336,10 +338,11 @@ export default function Home() {
   };
 
   const handleImportCollections = (newCollections: CollectionItem[]) => {
-    // For now we just dump to state, later we can write a batch import API
     setCollections(newCollections);
-    // You would normally sync to DB here, requiring a recursive bulk insert API
-    // api.collections.import(newCollections);
+    // Sync to DB
+    api.collections
+      .importAll(newCollections)
+      .catch((e) => console.error("Failed to sync imported collections", e));
   };
 
   const handleCreateCollectionItem = (
@@ -475,8 +478,10 @@ export default function Home() {
         // Append to collections
         const newCollections = [...collections, ...importedItems];
         setCollections(newCollections);
-        // Note: Real DB bulk import implementation needed
-        // api.collections.import(importedItems);
+        // Sync to DB
+        api.collections
+          .importAll(importedItems)
+          .catch((e) => console.error("Failed to sync Postman import", e));
       } catch (err) {
         console.error("Failed to parse Postman file", err);
         alert("Invalid Postman Collection file");

@@ -9,6 +9,7 @@ import {
   useCallback,
 } from "react";
 import { api } from "@/utils/api";
+import { useAuth } from "./AuthContext";
 
 export interface Secret {
   key: string;
@@ -34,12 +35,15 @@ const SecretsContext = createContext<SecretsContextType | undefined>(undefined);
 export function SecretsProvider({ children }: { children: ReactNode }) {
   const [secrets, setSecretsState] = useState<Secret[]>([]);
 
+  const { user } = useAuth();
+
   useEffect(() => {
+    if (!user) return;
     api.secrets
       .getAll()
       .then((data) => setSecretsState(data))
       .catch((e: Error) => console.error("Failed to load secrets:", e));
-  }, []);
+  }, [user]);
 
   const saveSecrets = useCallback((newSecrets: Secret[]) => {
     setSecretsState(newSecrets);

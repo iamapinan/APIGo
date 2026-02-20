@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthUser } from "@/utils/auth-server";
 import prisma from "@/utils/prisma";
+import { ensureUser } from "@/utils/ensure-user";
 
 export async function GET(req: Request) {
   const user = await getAuthUser(req);
@@ -9,12 +10,7 @@ export async function GET(req: Request) {
   }
 
   try {
-    // Upsert user to ensure they exist in our DB
-    await prisma.user.upsert({
-      where: { id: user.uid },
-      update: { email: user.email || "" },
-      create: { id: user.uid, email: user.email || "" },
-    });
+    await ensureUser(user.uid, user.email || "");
 
     // Fetch all collections owned by user, OR shared with user
     // To build a tree, we fetch everything and assemble it on the client/server
@@ -89,8 +85,19 @@ export async function POST(req: Request) {
   }
 
   try {
+    await ensureUser(user.uid, user.email || "");
+
     const body = await req.json();
-    const { id, name, type, parentId, method, url, headers, reqBody } = body;
+    const {
+      id,
+      name,
+      type,
+      parentId,
+      method,
+      url,
+      headers,
+      body: reqBody,
+    } = body;
 
     const newItem = await prisma.collectionItem.create({
       data: {
@@ -109,6 +116,67 @@ export async function POST(req: Request) {
     return NextResponse.json(newItem);
   } catch (error) {
     console.error("Error creating collection item:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function PUT(req: Request) {
+  const user = await getAuthUser(req);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    await ensureUser(user.uid, user.email || "");
+    const items = await req.json();
+
+    if (!Array.isArray(items)) {
+      return NextResponse.json({ error: "Expected an array" }, { status: 400 });
+    }
+
+    // Recursive upsert function
+    const upsertItems = async (
+      collectionItems: any[],
+      parentId: string | null = null,
+    ) => {
+      for (const item of collectionItems) {
+        await prisma.collectionItem.upsert({
+          where: { id: item.id },
+          update: {
+            name: item.name,
+            method: item.method,
+            url: item.url,
+            body: item.body,
+            headers: item.headers ? JSON.stringify(item.headers) : undefined,
+            parentId: parentId,
+          },
+          create: {
+            id: item.id,
+            name: item.name,
+            type: item.type,
+            method: item.method,
+            url: item.url,
+            body: item.body,
+            headers: item.headers ? JSON.stringify(item.headers) : undefined,
+            parentId: parentId,
+            userId: user.uid,
+          },
+        });
+
+        if (item.children && item.children.length > 0) {
+          await upsertItems(item.children, item.id);
+        }
+      }
+    };
+
+    await upsertItems(items);
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error importing collections:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 },

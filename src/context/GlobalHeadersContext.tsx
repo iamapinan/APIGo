@@ -9,6 +9,7 @@ import {
   useCallback,
 } from "react";
 import { api } from "@/utils/api";
+import { useAuth } from "./AuthContext";
 
 export interface GlobalHeader {
   key: string;
@@ -35,12 +36,15 @@ const GlobalHeadersContext = createContext<
 export function GlobalHeadersProvider({ children }: { children: ReactNode }) {
   const [globalHeaders, setGlobalHeadersState] = useState<GlobalHeader[]>([]);
 
+  const { user } = useAuth();
+
   useEffect(() => {
+    if (!user) return;
     api.globalHeaders
       .getAll()
       .then((data) => setGlobalHeadersState(data))
       .catch((e: Error) => console.error("Failed to load global headers:", e));
-  }, []);
+  }, [user]);
 
   const saveHeaders = useCallback((headers: GlobalHeader[]) => {
     setGlobalHeadersState(headers);

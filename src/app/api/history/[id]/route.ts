@@ -14,10 +14,7 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    // Verify ownership
-    const existing = await prisma.historyItem.findUnique({
-      where: { id },
-    });
+    const existing = await prisma.historyItem.findUnique({ where: { id } });
 
     if (!existing || existing.userId !== user.uid) {
       return NextResponse.json(
@@ -26,9 +23,7 @@ export async function DELETE(
       );
     }
 
-    await prisma.historyItem.delete({
-      where: { id },
-    });
+    await prisma.historyItem.delete({ where: { id } });
 
     return NextResponse.json({ success: true });
   } catch (error) {
