@@ -38,12 +38,8 @@ export async function PUT(
       where: { id },
       data: {
         name: body.name !== undefined ? body.name : undefined,
-        variables:
-          body.variables !== undefined
-            ? JSON.stringify(body.variables)
-            : undefined,
-        headers:
-          body.headers !== undefined ? JSON.stringify(body.headers) : undefined,
+        variables: body.variables !== undefined ? body.variables : undefined,
+        headers: body.headers !== undefined ? body.headers : undefined,
       },
     });
 

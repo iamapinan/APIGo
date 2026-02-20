@@ -45,15 +45,21 @@ export function RequestPanel({
           )}
         >
           Headers
-          {headers.length > 0 ||
-          globalHeaders?.length ||
-          environmentHeaders?.length ? (
+          {Array.isArray(headers) &&
+          (headers.length > 0 ||
+            globalHeaders?.length ||
+            environmentHeaders?.length) ? (
             <span className="ml-2 rounded-full bg-zinc-200 dark:bg-zinc-800 px-1.5 py-0.5 text-xs text-zinc-600 dark:text-zinc-400">
-              {headers.filter((h) => h.isEnabled && h.key).length +
-                (globalHeaders?.filter((h) => h.isEnabled && h.key).length ||
-                  0) +
-                (environmentHeaders?.filter((h) => h.isEnabled && h.key)
-                  .length || 0)}
+              {(Array.isArray(headers)
+                ? headers.filter((h) => h.isEnabled && h.key).length
+                : 0) +
+                (Array.isArray(globalHeaders)
+                  ? globalHeaders.filter((h) => h.isEnabled && h.key).length
+                  : 0) +
+                (Array.isArray(environmentHeaders)
+                  ? environmentHeaders.filter((h) => h.isEnabled && h.key)
+                      .length
+                  : 0)}
             </span>
           ) : null}
         </button>

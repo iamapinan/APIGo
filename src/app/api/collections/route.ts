@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAuthUser } from "@/utils/auth-server";
 import prisma from "@/utils/prisma";
 import { ensureUser } from "@/utils/ensure-user";
+import { CollectionItem } from "@/utils/postman-parser";
 
 export async function GET(req: Request) {
   const user = await getAuthUser(req);
@@ -107,7 +108,7 @@ export async function POST(req: Request) {
         parentId,
         method,
         url,
-        headers: headers ? JSON.stringify(headers) : undefined,
+        headers: headers || undefined,
         body: reqBody,
         userId: user.uid,
       },
@@ -139,7 +140,7 @@ export async function PUT(req: Request) {
 
     // Recursive upsert function
     const upsertItems = async (
-      collectionItems: any[],
+      collectionItems: CollectionItem[],
       parentId: string | null = null,
     ) => {
       for (const item of collectionItems) {
@@ -150,7 +151,7 @@ export async function PUT(req: Request) {
             method: item.method,
             url: item.url,
             body: item.body,
-            headers: item.headers ? JSON.stringify(item.headers) : undefined,
+            headers: item.headers || undefined,
             parentId: parentId,
           },
           create: {
@@ -160,7 +161,7 @@ export async function PUT(req: Request) {
             method: item.method,
             url: item.url,
             body: item.body,
-            headers: item.headers ? JSON.stringify(item.headers) : undefined,
+            headers: item.headers || undefined,
             parentId: parentId,
             userId: user.uid,
           },

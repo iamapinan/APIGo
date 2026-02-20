@@ -43,7 +43,7 @@ export async function POST(req: Request) {
         method,
         url,
         date: date ? new Date(date) : undefined,
-        headers: headers ? JSON.stringify(headers) : undefined,
+        headers: headers || undefined,
         body,
         userId: user.uid,
       },

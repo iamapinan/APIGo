@@ -453,7 +453,11 @@ export default function Home() {
     setActiveItemId(null);
     setMethod(item.method);
     setUrl(item.url);
-    setHeaders(item.headers || []);
+    const safeHeaders =
+      typeof item.headers === "string"
+        ? JSON.parse(item.headers)
+        : item.headers;
+    setHeaders(safeHeaders || []);
     setBody(item.body || "");
   };
 
@@ -461,7 +465,11 @@ export default function Home() {
     setActiveItemId(item.id);
     setMethod(item.method || "GET");
     setUrl(item.url || "");
-    setHeaders(item.headers || []);
+    const safeHeaders =
+      typeof item.headers === "string"
+        ? JSON.parse(item.headers)
+        : item.headers;
+    setHeaders(safeHeaders || []);
     setBody(item.body || "");
   };
 

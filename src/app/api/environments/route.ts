@@ -47,8 +47,8 @@ export async function POST(req: Request) {
       data: {
         id,
         name,
-        variables: JSON.stringify(variables || []),
-        headers: headers ? JSON.stringify(headers) : undefined,
+        variables: variables || [],
+        headers: headers || undefined,
         userId: user.uid,
       },
     });
