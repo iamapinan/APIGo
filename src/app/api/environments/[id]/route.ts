@@ -4,7 +4,7 @@ import prisma from "@/utils/prisma";
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const user = await getAuthUser(req);
   if (!user) {
@@ -12,7 +12,7 @@ export async function PUT(
   }
 
   try {
-    const id = params.id;
+    const { id } = await params;
     const body = await req.json();
 
     const existing = await prisma.environment.findUnique({
@@ -59,7 +59,7 @@ export async function PUT(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const user = await getAuthUser(req);
   if (!user) {
@@ -67,7 +67,7 @@ export async function DELETE(
   }
 
   try {
-    const id = params.id;
+    const { id } = await params;
 
     const existing = await prisma.environment.findUnique({ where: { id } });
 

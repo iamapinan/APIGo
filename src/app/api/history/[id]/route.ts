@@ -4,7 +4,7 @@ import prisma from "@/utils/prisma";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const user = await getAuthUser(req);
   if (!user) {
@@ -12,7 +12,7 @@ export async function DELETE(
   }
 
   try {
-    const id = params.id;
+    const { id } = await params;
 
     // Verify ownership
     const existing = await prisma.historyItem.findUnique({
