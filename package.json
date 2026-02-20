@@ -4,9 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
+    "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint"
+  },
+  "engines": {
+    "node": ">=20.19.0"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.4.1",
@@ -34,5 +38,8 @@
     "prisma": "^7.4.1",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": []
   }
 }
