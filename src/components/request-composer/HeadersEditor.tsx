@@ -159,8 +159,10 @@ export function HeadersEditor({
         ))}
 
         {headers.length === 0 && (
-          <div className="text-center text-xs text-zinc-500 dark:text-zinc-600 py-4">
-            No headers. Click "Add Header" to create one.
+          <div className="flex-1 overflow-y-auto p-4 flex items-center justify-center">
+            <div className="text-zinc-500 text-sm">
+              No headers defined. Click Add Header or use Environment.
+            </div>
           </div>
         )}
       </div>

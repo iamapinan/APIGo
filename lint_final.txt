@@ -1,0 +1,88 @@
+
+> api-testing@0.1.0 lint
+> eslint
+
+
+/Users/apinan/Developments/api-testing/src/app/page.tsx
+  76:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/apinan/Developments/api-testing/src/app/page.tsx:76:9
+  74 |     if (savedHistory) {
+  75 |       try {
+> 76 |         setHistory(JSON.parse(savedHistory));
+     |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  77 |       } catch (e) {
+  78 |         console.error("Failed to parse history", e);
+  79 |       }  react-hooks/set-state-in-effect
+
+/Users/apinan/Developments/api-testing/src/components/environments/EnvironmentModal.tsx
+  34:5  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/apinan/Developments/api-testing/src/components/environments/EnvironmentModal.tsx:34:5
+  32 |
+  33 |   useEffect(() => {
+> 34 |     setEnvironments(initialEnvironments);
+     |     ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  35 |     if (initialEnvironments.length > 0 && !selectedEnvId) {
+  36 |       setSelectedEnvId(initialEnvironments[0].id);
+  37 |     }  react-hooks/set-state-in-effect
+  38:6  warning  React Hook useEffect has a missing dependency: 'selectedEnvId'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            react-hooks/exhaustive-deps
+
+/Users/apinan/Developments/api-testing/src/components/request-composer/BodyEditor.tsx
+  95:30  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  95:40  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+/Users/apinan/Developments/api-testing/src/components/response-viewer/ResponseBody.tsx
+  47:7  error  'displayContent' is never reassigned. Use 'const' instead  prefer-const
+
+/Users/apinan/Developments/api-testing/src/context/GlobalHeadersContext.tsx
+  40:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/apinan/Developments/api-testing/src/context/GlobalHeadersContext.tsx:40:9
+  38 |     if (savedHeaders) {
+  39 |       try {
+> 40 |         setGlobalHeaders(JSON.parse(savedHeaders));
+     |         ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  41 |       } catch (e) {
+  42 |         console.error("Failed to parse global headers", e);
+  43 |       }  react-hooks/set-state-in-effect
+
+/Users/apinan/Developments/api-testing/src/context/SecretsContext.tsx
+  39:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/apinan/Developments/api-testing/src/context/SecretsContext.tsx:39:9
+  37 |     if (savedSecrets) {
+  38 |       try {
+> 39 |         setSecrets(JSON.parse(savedSecrets));
+     |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  40 |       } catch (e) {
+  41 |         console.error("Failed to parse global secrets", e);
+  42 |       }  react-hooks/set-state-in-effect
+
+✖ 8 problems (7 errors, 1 warning)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+

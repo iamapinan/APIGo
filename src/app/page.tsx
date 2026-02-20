@@ -31,6 +31,10 @@ import { EnvironmentSelector } from "@/components/environments/EnvironmentSelect
 import { SettingsModal } from "@/components/settings/SettingsModal";
 import { useGlobalHeaders } from "@/context/GlobalHeadersContext";
 import { useSecrets } from "@/context/SecretsContext";
+import { useAuth } from "@/context/AuthContext";
+import LandingPage from "@/components/landing/LandingPage";
+import { LogOut, User as UserIcon } from "lucide-react";
+import Image from "next/image";
 
 // Shared Header interface (compatible with postman-parser types)
 interface Header {
@@ -62,13 +66,15 @@ export default function Home() {
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
 
   const { isLoading, response, error, sendRequest } = useRequest();
+  const { user, loading: authLoading, signOut } = useAuth();
 
   // Load data from localStorage on mount
   useEffect(() => {
     const savedHistory = localStorage.getItem("request-history");
     if (savedHistory) {
       try {
-        setHistory(JSON.parse(savedHistory));
+        const parsedHistory = JSON.parse(savedHistory);
+        setTimeout(() => setHistory(parsedHistory), 0);
       } catch (e) {
         console.error("Failed to parse history", e);
       }
@@ -399,6 +405,23 @@ export default function Home() {
     }
   };
 
+  if (authLoading) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-zinc-950">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          <div className="text-zinc-500 text-sm font-medium animate-pulse">
+            Initializing Neural Link...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LandingPage />;
+  }
+
   return (
     <main className="flex h-screen w-full bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 overflow-hidden">
       {/* Sidebar */}
@@ -449,6 +472,32 @@ export default function Home() {
               onSelect={handleSetActiveEnvironment}
               onManage={() => setIsEnvModalOpen(true)}
             />
+
+            <div className="h-6 w-[1px] bg-zinc-200 dark:bg-zinc-800 mx-2" />
+
+            <div className="flex items-center gap-3">
+              {user.photoURL ? (
+                <Image
+                  src={user.photoURL}
+                  alt={user.displayName || "User"}
+                  width={28}
+                  height={28}
+                  unoptimized
+                  className="h-7 w-7 rounded-full border border-zinc-200 dark:border-zinc-700 object-cover"
+                />
+              ) : (
+                <div className="h-7 w-7 rounded-full bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
+                  <UserIcon className="h-4 w-4 text-indigo-400" />
+                </div>
+              )}
+              <button
+                onClick={signOut}
+                className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 transition-colors"
+                title="Sign Out"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </header>
 

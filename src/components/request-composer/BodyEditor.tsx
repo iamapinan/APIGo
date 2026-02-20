@@ -136,8 +136,10 @@ export function BodyEditor({ content, onChange }: BodyEditorProps) {
 
       <div className="flex-1 mt-2">
         {body.type === "none" && (
-          <div className="flex items-center justify-center h-full text-sm text-zinc-500 dark:text-zinc-600">
-            This request does not have a body
+          <div className="flex-1 overflow-y-auto p-4 flex items-center justify-center">
+            <div className="text-zinc-500 text-sm">
+              No fields defined. Switch to raw for custom JSON.
+            </div>
           </div>
         )}
 

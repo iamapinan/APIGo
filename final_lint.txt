@@ -1,0 +1,103 @@
+
+> api-testing@0.1.0 lint
+> eslint
+
+
+/Users/apinan/Developments/api-testing/src/app/page.tsx
+  76:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/apinan/Developments/api-testing/src/app/page.tsx:76:9
+  74 |     if (savedHistory) {
+  75 |       try {
+> 76 |         setHistory(JSON.parse(savedHistory));
+     |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  77 |       } catch (e) {
+  78 |         console.error("Failed to parse history", e);
+  79 |       }  react-hooks/set-state-in-effect
+
+/Users/apinan/Developments/api-testing/src/components/collections/SaveRequestModal.tsx
+   4:19  warning  'Folder' is defined but never used                        @typescript-eslint/no-unused-vars
+   4:27  warning  'FileText' is defined but never used                      @typescript-eslint/no-unused-vars
+  24:28  warning  'setSelectedFolderId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/apinan/Developments/api-testing/src/components/environments/EnvironmentModal.tsx
+  34:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/apinan/Developments/api-testing/src/components/environments/EnvironmentModal.tsx:34:5
+  32 |
+  33 |   useEffect(() => {
+> 34 |     setEnvironments(initialEnvironments);
+     |     ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  35 |     if (initialEnvironments.length > 0 && !selectedEnvId) {
+  36 |       setSelectedEnvId(initialEnvironments[0].id);
+  37 |     }  react-hooks/set-state-in-effect
+  38:6   warning  React Hook useEffect has a missing dependency: 'selectedEnvId'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            react-hooks/exhaustive-deps
+  94:12  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+
+/Users/apinan/Developments/api-testing/src/components/response-viewer/ResponseBody.tsx
+  47:7  error  'displayContent' is never reassigned. Use 'const' instead  prefer-const
+
+/Users/apinan/Developments/api-testing/src/components/settings/SettingsModal.tsx
+  3:10  warning  'useEffect' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/apinan/Developments/api-testing/src/components/sidebar/CollectionList.tsx
+  8:3  warning  'FileText' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/apinan/Developments/api-testing/src/components/sidebar/HistoryList.tsx
+  12:13  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/apinan/Developments/api-testing/src/context/GlobalHeadersContext.tsx
+  24:12  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-explicit-any
+  40:9   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/apinan/Developments/api-testing/src/context/GlobalHeadersContext.tsx:40:9
+  38 |     if (savedHeaders) {
+  39 |       try {
+> 40 |         setGlobalHeaders(JSON.parse(savedHeaders));
+     |         ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  41 |       } catch (e) {
+  42 |         console.error("Failed to parse global headers", e);
+  43 |       }  react-hooks/set-state-in-effect
+  59:12  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-explicit-any
+
+/Users/apinan/Developments/api-testing/src/context/SecretsContext.tsx
+  21:61  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+  35:9   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/apinan/Developments/api-testing/src/context/SecretsContext.tsx:35:9
+  33 |     if (savedSecrets) {
+  34 |       try {
+> 35 |         setSecrets(JSON.parse(savedSecrets));
+     |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  36 |       } catch (e) {
+  37 |         console.error("Failed to parse global secrets", e);
+  38 |       }  react-hooks/set-state-in-effect
+  51:68  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+
+✖ 17 problems (11 errors, 6 warnings)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+

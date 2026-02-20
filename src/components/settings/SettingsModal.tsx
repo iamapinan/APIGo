@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { X, Moon, Sun, Plus, Trash2, Download } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 import { useGlobalHeaders } from "@/context/GlobalHeadersContext";

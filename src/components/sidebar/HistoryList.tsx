@@ -9,7 +9,7 @@ interface HistoryItem {
   method: string;
   url: string;
   date: string;
-  headers?: any[];
+  headers?: { key: string; value: string; isEnabled: boolean }[];
   body?: string;
 }
 

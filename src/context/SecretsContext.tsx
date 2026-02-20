@@ -18,7 +18,11 @@ interface SecretsContextType {
   secrets: Secret[];
   setSecrets: (secrets: Secret[]) => void;
   addSecret: () => void;
-  updateSecret: (index: number, field: keyof Secret, value: any) => void;
+  updateSecret: (
+    index: number,
+    field: keyof Secret,
+    value: string | boolean,
+  ) => void;
   removeSecret: (index: number) => void;
   getSecretValue: (key: string) => string | null;
 }
@@ -32,7 +36,8 @@ export function SecretsProvider({ children }: { children: ReactNode }) {
     const savedSecrets = localStorage.getItem("global-secrets");
     if (savedSecrets) {
       try {
-        setSecrets(JSON.parse(savedSecrets));
+        const parsed = JSON.parse(savedSecrets);
+        setTimeout(() => setSecrets(parsed), 0);
       } catch (e) {
         console.error("Failed to parse global secrets", e);
       }
@@ -48,7 +53,11 @@ export function SecretsProvider({ children }: { children: ReactNode }) {
     saveSecrets([...secrets, { key: "", value: "", isEnabled: true }]);
   };
 
-  const updateSecret = (index: number, field: keyof Secret, value: any) => {
+  const updateSecret = (
+    index: number,
+    field: keyof Secret,
+    value: string | boolean,
+  ) => {
     const newSecrets = [...secrets];
     newSecrets[index] = { ...newSecrets[index], [field]: value };
     saveSecrets(newSecrets);

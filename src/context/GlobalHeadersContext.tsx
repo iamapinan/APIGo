@@ -21,7 +21,7 @@ interface GlobalHeadersContextType {
   updateGlobalHeader: (
     index: number,
     field: keyof GlobalHeader,
-    value: any,
+    value: string | boolean,
   ) => void;
   removeGlobalHeader: (index: number) => void;
 }
@@ -37,7 +37,8 @@ export function GlobalHeadersProvider({ children }: { children: ReactNode }) {
     const savedHeaders = localStorage.getItem("global-headers");
     if (savedHeaders) {
       try {
-        setGlobalHeaders(JSON.parse(savedHeaders));
+        const parsed = JSON.parse(savedHeaders);
+        setTimeout(() => setGlobalHeaders(parsed), 0);
       } catch (e) {
         console.error("Failed to parse global headers", e);
       }
@@ -56,7 +57,7 @@ export function GlobalHeadersProvider({ children }: { children: ReactNode }) {
   const updateGlobalHeader = (
     index: number,
     field: keyof GlobalHeader,
-    value: any,
+    value: string | boolean,
   ) => {
     const newHeaders = [...globalHeaders];
     newHeaders[index] = { ...newHeaders[index], [field]: value };

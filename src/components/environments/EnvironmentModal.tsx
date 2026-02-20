@@ -31,10 +31,13 @@ export function EnvironmentModal({
   );
 
   useEffect(() => {
-    setEnvironments(initialEnvironments);
-    if (initialEnvironments.length > 0 && !selectedEnvId) {
-      setSelectedEnvId(initialEnvironments[0].id);
-    }
+    setTimeout(() => {
+      setEnvironments(initialEnvironments);
+      if (initialEnvironments.length > 0 && !selectedEnvId) {
+        setSelectedEnvId(initialEnvironments[0].id);
+      }
+    }, 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialEnvironments, isOpen]);
 
   if (!isOpen) return null;
@@ -91,7 +94,7 @@ export function EnvironmentModal({
     type: "variables" | "headers",
     index: number,
     field: keyof EnvironmentParameter,
-    value: any,
+    value: string | boolean,
   ) => {
     if (!selectedEnv) return;
     const list = selectedEnv[type] || [];

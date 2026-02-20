@@ -76,4 +76,3 @@ export function ResponseBody({ body, contentType }: ResponseBodyProps) {
     </div>
   );
 }
-

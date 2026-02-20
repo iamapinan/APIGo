@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Save, Folder, FileText } from "lucide-react";
+import { X, Save } from "lucide-react";
 import { CollectionItem } from "@/utils/postman-parser";
 
 interface SaveRequestModalProps {
@@ -21,7 +21,7 @@ export function SaveRequestModal({
 }: SaveRequestModalProps) {
   const [name, setName] = useState(initialName);
   const [selectedCollectionId, setSelectedCollectionId] = useState<string>("");
-  const [selectedFolderId, setSelectedFolderId] = useState<string>("");
+  const [selectedFolderId] = useState<string>("");
 
   if (!isOpen) return null;
 

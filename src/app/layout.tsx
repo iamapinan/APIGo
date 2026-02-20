@@ -20,6 +20,8 @@ export const metadata: Metadata = {
   description: "A modern, open-source API testing tool",
 };
 
+import { AuthProvider } from "@/context/AuthContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,11 +32,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider>
-          <GlobalHeadersProvider>
-            <SecretsProvider>{children}</SecretsProvider>
-          </GlobalHeadersProvider>
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            <GlobalHeadersProvider>
+              <SecretsProvider>{children}</SecretsProvider>
+            </GlobalHeadersProvider>
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

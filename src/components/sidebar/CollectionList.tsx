@@ -5,7 +5,6 @@ import {
   ChevronRight,
   ChevronDown,
   Folder,
-  FileText,
   Download,
   Plus,
   Trash2,
