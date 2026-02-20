@@ -4,6 +4,7 @@ import * as React from "react";
 import { cn } from "@/utils/cn";
 import { ResponseBody } from "./ResponseBody";
 import { ResponseHeaders } from "./ResponseHeaders";
+import { ResponsePreview } from "./ResponsePreview";
 
 interface RequestResponse {
   status: number;
@@ -27,7 +28,9 @@ export function ResponsePanel({
   isLoading,
   error,
 }: ResponsePanelProps) {
-  const [activeTab, setActiveTab] = React.useState<"body" | "headers">("body");
+  const [activeTab, setActiveTab] = React.useState<
+    "body" | "preview" | "headers"
+  >("body");
 
   if (isLoading) {
     return (
@@ -74,6 +77,17 @@ export function ResponsePanel({
           Body
         </button>
         <button
+          onClick={() => setActiveTab("preview")}
+          className={cn(
+            "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+            activeTab === "preview"
+              ? "border-blue-500 text-blue-600 dark:text-blue-500"
+              : "border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200",
+          )}
+        >
+          Preview
+        </button>
+        <button
           onClick={() => setActiveTab("headers")}
           className={cn(
             "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
@@ -92,6 +106,12 @@ export function ResponsePanel({
       <div className="flex-1 overflow-hidden p-0 bg-zinc-50 dark:bg-zinc-950 relative">
         {activeTab === "body" && (
           <ResponseBody
+            body={response.body}
+            contentType={response.contentType}
+          />
+        )}
+        {activeTab === "preview" && (
+          <ResponsePreview
             body={response.body}
             contentType={response.contentType}
           />
