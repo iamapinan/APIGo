@@ -8,19 +8,6 @@ interface ResponsePreviewProps {
 }
 
 export function ResponsePreview({ body, contentType }: ResponsePreviewProps) {
-  const iframeRef = React.useRef<HTMLIFrameElement>(null);
-
-  React.useEffect(() => {
-    if (iframeRef.current && body && contentType?.includes("text/html")) {
-      const doc = iframeRef.current.contentDocument;
-      if (doc) {
-        doc.open();
-        doc.write(body);
-        doc.close();
-      }
-    }
-  }, [body, contentType]);
-
   if (!body) {
     return (
       <div className="flex h-full items-center justify-center text-sm text-zinc-500">
@@ -38,8 +25,7 @@ export function ResponsePreview({ body, contentType }: ResponsePreviewProps) {
           alt="Response Preview"
           className="max-w-full h-auto shadow-lg rounded border border-zinc-200 dark:border-zinc-800"
           onError={(e) => {
-            // If base64 fails, maybe it's a URL or direct string (though usually base64 for binary)
-            // Fallback to direct src if it looks like one
+            // If base64 fails, maybe it's a URL or direct string
             if (!body.startsWith("data:")) {
               (e.target as HTMLImageElement).src = body;
             }
@@ -50,14 +36,20 @@ export function ResponsePreview({ body, contentType }: ResponsePreviewProps) {
   }
 
   // Handle HTML
-  if (contentType?.includes("text/html")) {
+  const isHtml =
+    contentType?.includes("text/html") ||
+    (contentType?.includes("text/plain") && body.trim().startsWith("<")) ||
+    body.trim().startsWith("<!DOCTYPE html") ||
+    body.trim().startsWith("<html");
+
+  if (isHtml) {
     return (
-      <div className="h-full w-full bg-white flex flex-col">
+      <div className="h-full w-full bg-white">
         <iframe
-          ref={iframeRef}
+          srcDoc={body}
           title="Response Preview"
-          className="flex-1 w-full border-none"
-          sandbox="allow-scripts"
+          className="w-full h-full border-none"
+          sandbox="allow-scripts allow-forms allow-same-origin"
         />
       </div>
     );
